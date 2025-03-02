@@ -1,7 +1,5 @@
 const suits = ["♠", "♥", "♦", "♣"];
-const values = [
-    "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"
-];
+const values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 export const createDeck = () => {
     let deck = [];
@@ -14,13 +12,10 @@ export const createDeck = () => {
 };
 
 export const evaluateHand = (hand) => {
-    const values = hand.map(card => card.value);
-    const suits = hand.map(card => card.suit);
-
-    // Convert face cards to numeric values for ranking
     const valueMap = { "J": 11, "Q": 12, "K": 13, "A": 14 };
-    const numValues = values.map(v => valueMap[v] || parseInt(v)).sort((a, b) => a - b);
-
+    const numValues = hand.map(card => valueMap[card.value] || parseInt(card.value)).sort((a, b) => a - b);
+    const suits = hand.map(card => card.suit);
+    
     const isFlush = suits.every(suit => suit === suits[0]);
     const isStraight = numValues.every((val, i, arr) => i === 0 || val === arr[i - 1] + 1);
     
@@ -43,6 +38,18 @@ export const evaluateHand = (hand) => {
     if (hasThreeOfKind) return "Three of a Kind";
     if (hasTwoPairs) return "Two Pairs";
     if (hasPair) return "One Pair";
-
     return "High Card";
+};
+
+export const opponentDecision = (hand) => {
+    const handRank = evaluateHand(hand);
+    const rankOrder = [
+        "High Card", "One Pair", "Two Pairs", "Three of a Kind",
+        "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush"
+    ];
+    const strength = rankOrder.indexOf(handRank);
+
+    if (strength <= 1) return "fold";  // Opponent folds if weak
+    if (strength >= 5) return "raise"; // Opponent raises if strong
+    return "call";  // Otherwise, opponent calls
 };
