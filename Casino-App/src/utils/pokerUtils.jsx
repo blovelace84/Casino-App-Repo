@@ -11,10 +11,12 @@ export const createDeck = () => {
     return deck.sort(() => Math.random() - 0.5); // Shuffle deck
 };
 
-export const evaluateHand = (hand) => {
+export const evaluateHand = (holeCards, communityCards) => {
+    const fullHand = [...holeCards, ...communityCards];
+    
     const valueMap = { "J": 11, "Q": 12, "K": 13, "A": 14 };
-    const numValues = hand.map(card => valueMap[card.value] || parseInt(card.value)).sort((a, b) => a - b);
-    const suits = hand.map(card => card.suit);
+    const numValues = fullHand.map(card => valueMap[card.value] || parseInt(card.value)).sort((a, b) => a - b);
+    const suits = fullHand.map(card => card.suit);
     
     const isFlush = suits.every(suit => suit === suits[0]);
     const isStraight = numValues.every((val, i, arr) => i === 0 || val === arr[i - 1] + 1);
@@ -41,8 +43,8 @@ export const evaluateHand = (hand) => {
     return "High Card";
 };
 
-export const opponentDecision = (hand) => {
-    const handRank = evaluateHand(hand);
+export const opponentDecision = (holeCards, communityCards) => {
+    const handRank = evaluateHand(holeCards, communityCards);
     const rankOrder = [
         "High Card", "One Pair", "Two Pairs", "Three of a Kind",
         "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush"

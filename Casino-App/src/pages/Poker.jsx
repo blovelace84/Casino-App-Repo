@@ -6,38 +6,23 @@ import BetControls from "../components/BetControls";
 const Poker = () => {
     const { updateBalance } = usePlayer();
     const [deck, setDeck] = useState(createDeck());
-    const [playerHand, setPlayerHand] = useState([]);
+    const [playerHand, setPlayerHand] = useState([]); // Two hole cards
     const [opponentHand, setOpponentHand] = useState([]);
+    const [communityCards, setCommunityCards] = useState([]); // Five community cards
     const [gameResult, setGameResult] = useState(null);
     const [currentBet, setCurrentBet] = useState(100);
-    const [selectedCards, setSelectedCards] = useState([]);
     const [round, setRound] = useState("pre-flop");
+    const [folded, setFolded] = useState(false);
 
     const dealHands = () => {
         let newDeck = createDeck();
-        setPlayerHand(newDeck.slice(0, 5));
-        setOpponentHand(newDeck.slice(5, 10));
-        setDeck(newDeck.slice(10));
+        setPlayerHand(newDeck.slice(0, 2)); // Two hole cards
+        setOpponentHand(newDeck.slice(2, 4)); // Two hole cards for opponent
+        setCommunityCards(newDeck.slice(4, 9)); // Five community cards
+        setDeck(newDeck.slice(9));
         setGameResult(null);
         setRound("pre-flop");
-    };
-
-    const toggleCardSelection = (index) => {
-        setSelectedCards(prev =>
-            prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
-        );
-    };
-
-    const swapCards = () => {
-        if (selectedCards.length === 0) return;
-        const newDeck = [...deck];
-        const newHand = playerHand.map((card, index) =>
-            selectedCards.includes(index) ? newDeck.pop() : card
-        );
-        setPlayerHand(newHand);
-        setDeck(newDeck);
-        setSelectedCards([]);
-        setRound("betting");
+        setFolded(false);
     };
 
     const handleBet = (amount) => {
@@ -46,20 +31,31 @@ const Poker = () => {
     };
 
     const handleOpponentMove = () => {
-        const decision = opponentDecision(opponentHand);
+        const decision = opponentDecision(opponentHand, communityCards);
         if (decision === "fold") {
             setGameResult("Opponent folded! You win.");
             updateBalance(currentBet * 2, true);
+            setFolded(true);
             return;
         } else if (decision === "raise") {
             setCurrentBet(currentBet + 50);
         }
-        setRound("showdown");
+        goToNextRound();
+    };
+
+    const goToNextRound = () => {
+        const rounds = ["pre-flop", "flop", "turn", "river", "showdown"];
+        const nextRoundIndex = rounds.indexOf(round) + 1;
+        if (nextRoundIndex < rounds.length) {
+            setRound(rounds[nextRoundIndex]);
+        } else {
+            determineWinner();
+        }
     };
 
     const determineWinner = () => {
-        const playerRank = evaluateHand(playerHand);
-        const opponentRank = evaluateHand(opponentHand);
+        const playerRank = evaluateHand(playerHand, communityCards);
+        const opponentRank = evaluateHand(opponentHand, communityCards);
 
         const rankOrder = [
             "High Card", "One Pair", "Two Pairs", "Three of a Kind",
@@ -84,26 +80,25 @@ const Poker = () => {
         <div>
             <h1>Poker</h1>
             <button onClick={dealHands}>Deal Hands</button>
-            {round === "pre-flop" && (
-                <>
-                    <h3>Select Cards to Swap:</h3>
-                    {playerHand.map((card, index) => (
-                        <span 
-                            key={index} 
-                            onClick={() => toggleCardSelection(index)}
-                            style={{ 
-                                fontSize: "1.5rem", 
-                                cursor: "pointer",
-                                border: selectedCards.includes(index) ? "2px solid red" : "none"
-                            }}
-                        >
-                            {card.value}{card.suit}
-                        </span>
-                    ))}
-                    <button onClick={swapCards}>Swap Selected Cards</button>
-                </>
-            )}
-            {round === "betting" && <BetControls onBet={handleBet} />}
+            {round !== "showdown" && !folded && <BetControls onBet={handleBet} />}
+            <h3>Community Cards:</h3>
+            <div>
+                {communityCards.map((card, index) => (
+                    <span key={index} style={{ fontSize: "1.5rem", margin: "5px" }}>
+                        {card.value}{card.suit}
+                    </span>
+                ))}
+            </div>
+            <h3>Your Cards:</h3>
+            <div>
+                {playerHand.map((card, index) => (
+                    <span key={index} style={{ fontSize: "1.5rem", margin: "5px" }}>
+                        {card.value}{card.suit}
+                    </span>
+                ))}
+            </div>
+            <h3>Opponent Cards:</h3>
+            <div>{folded ? <span>Opponent Folded</span> : "?? ??"}</div>
             {round === "showdown" && <button onClick={determineWinner}>Reveal Winner</button>}
             {gameResult && <h2>{gameResult}</h2>}
         </div>
