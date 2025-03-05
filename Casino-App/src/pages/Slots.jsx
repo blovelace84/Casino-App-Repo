@@ -1,28 +1,29 @@
 import React, { useState } from "react";
-import { generateReels, checkWin } from "../utils/slotsUtils";
-import "./Slots.css"; // Casino-style UI
+import { useSlots } from "../hooks/useSlots";
+import { useAudio } from "../hooks/useAudio";
+import spinSound from "../assets/spin.m4a";
+import winSound from "../assets/win.m4a";
+import "../pages/Slots.css"; 
 
 const Slots = () => {
-  const [reels, setReels] = useState(["❓", "❓", "❓", "❓", "❓"]);
-  const [message, setMessage] = useState("");
-  const [bet, setBet] = useState(10);
-  const [balance, setBalance] = useState(1000);
+  const { reels, message, balance, bet, setBet, spin } = useSlots();
+  const playSpinSound = useAudio(spinSound);
+  const playWinSound = useAudio(winSound);
+  const [isSpinning, setIsSpinning] = useState(false);
 
   const handleSpin = () => {
-    if (bet > balance) {
-      setMessage("Not enough balance!");
+    if(balance < bet) {
+      alert("Not enough balance! 💰");
       return;
     }
+    playSpinSound();
+    setIsSpinning(true);  // Start animation
 
-    const newReels = generateReels();
-    setReels(newReels);
-    setBalance(balance - bet);
-
-    const result = checkWin(newReels);
-    if (result === "Jackpot!") {
-      setBalance(balance + bet * 10); // 10x payout
-    }
-    setMessage(result);
+    setTimeout(() => {
+      spin();
+      setIsSpinning(false);  // Stop animation after spin completes
+      playWinSound();
+    }, 2000); // 2 seconds spin duration
   };
 
   return (
@@ -30,15 +31,23 @@ const Slots = () => {
       <h1>🎰 Slot Machine 🎰</h1>
       <div className="reels">
         {reels.map((symbol, index) => (
-          <div key={index} className="reel">{symbol}</div>
+          <div key={index} className={`reel ${isSpinning ? "spinning" : ""}`}>
+            {isSpinning ? "🎰" : symbol} 
+          </div>
         ))}
       </div>
-      <p>{message}</p>
-      <div className="controls">
-        <button onClick={handleSpin}>SPIN 🎲</button>
-        <p>Bet: ${bet}</p>
-        <p>Balance: ${balance}</p>
+      <p className={message.includes("JACKPOT") ? "jackpot" : ""}>{message}</p>
+      {/* Betting Controls */}
+      <div className="bet-controls">
+        <button onClick={() => setBet((prev) => Math.max(10, prev - 10))} disabled={isSpinning}>
+          ➖ Lower Bet
+        </button>
+        <span className="bet-amount">Bet: ${bet}</span>
+        <button onClick={() => setBet((prev) => Math.min(balance, prev + 10))} disabled={isSpinning}>
+          ➕ Increase Bet
+        </button>
       </div>
+      <button onClick={handleSpin} disabled={isSpinning}>SPIN 🎲</button>
     </div>
   );
 };
