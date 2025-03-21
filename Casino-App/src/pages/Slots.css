@@ -1,92 +1,88 @@
-/* Add spinning animation */
-@keyframes spin {
-  0% { transform: translateY(0px); }
-  25% { transform: translateY(-10px); }
-  50% { transform: translateY(10px); }
-  75% { transform: translateY(-5px); }
-  100% { transform: translateY(0px); }
-}
-
-/* Flashing Jackpot text */
-@keyframes flash {
-  0%, 100% { color: gold; text-shadow: 0 0 10px gold; }
-  50% { color: red; text-shadow: 0 0 20px red; }
-}
-
-/* Updated styles */
-.slot-machine {
+/* General container styling */
+.slots-container {
   text-align: center;
-  background: linear-gradient(45deg, #222, #444);
-  color: gold;
+  font-family: Arial, sans-serif;
   padding: 20px;
+  background-color: blue;
   border-radius: 10px;
-  width: 750px;
-  margin: auto;
-  box-shadow: 0 0 30px gold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  margin: 20px auto;
 }
 
-.reels {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.reel {
-  font-size: 50px;
-  background: black;
+/* Title styling */
+.slots-title {
+  font-size: 2rem;
   color: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px white;
-  animation: spin 0.5s ease-in-out;
-}
-
-.spinning{
-  animation: spin 0.6s linear infinite;
-}
-
-.jackpot {
-  font-size: 24px;
-  font-weight: bold;
-  animation: flash 1s infinite;
-}
-
-.balance {
-  font-size: 20px;
-  color: #ffcc00;
-  text-shadow: 0 0 5px gold;
   margin-bottom: 10px;
 }
 
-.bet-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0;
+/* Balance and bet input styling */
+.slots-balance {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  margin-left: 15px;
 }
 
-.bet-amount {
-  font-size: 18px;
-  font-weight: bold;
-  color: #ffffff;
-  background: black;
-  padding: 5px 15px;
+.slots-bet {
+  margin-bottom: 20px;
+  margin-left: 20px;
+}
+
+.slots-bet input {
+  padding: 5px;
+  font-size: 1rem;
+  width: 80px;
+  border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-button {
-  font-size: 16px;
-  background-color: #ffcc00;
-  color: black;
+/* Reels container styling */
+.slots-reels {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  font-size: 2rem;
+  border: 2px solid #333;
+  padding: 10px;
+  width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: red;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slots-reels span {
+  margin: 0 10px;
+}
+
+/* Button styling */
+.slots-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
   border: none;
-  padding: 8px 15px;
   border-radius: 5px;
   cursor: pointer;
-  transition: 0.2s ease;
+  margin: 5px;
 }
 
-button:hover {
-  background-color: #ffaa00;
+.slots-button.spin {
+  background-color: #007bff;
+}
+
+.slots-button.spin:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.slots-button.reset {
+  background-color: #dc3545;
+}
+
+.slots-button.reset:disabled {
+  background-color: #f5a5a5;
+  cursor: not-allowed;
 }
